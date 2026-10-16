@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en" data-collection="customers">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Majlis Customer Scratch & Win</title>
+    <link rel="icon" href="./assets/png/Vector Smart Object copy 12.png" type="image/png">
+    <!-- Google Fonts for Festive Premium Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Main Style Sheet -->
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        /* Premium Initialization Loader Overlay */
+        .init-loader-overlay {
+            position: fixed;
+            inset: 0;
+            background: #073520;
+            /* Deep forest green */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 999999;
+            gap: 18px;
+        }
+
+        .init-spinner {
+            width: 44px;
+            height: 44px;
+            border: 3px solid rgba(197, 160, 89, 0.15);
+            /* Light gold border hint */
+            border-radius: 50%;
+            border-top-color: #c5a059;
+            /* Bright gold spinner */
+            animation: init-spin 1s linear infinite;
+        }
+
+        .init-text {
+            color: #faf7f2;
+            font-family: 'Poppins', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            opacity: 0.85;
+        }
+
+        @keyframes init-spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Premium Loading Overlay -->
+    <div id="init-loader" class="init-loader-overlay">
+        <div class="init-spinner"></div>
+        <div class="init-text">Loading MajliS Scratch Card...</div>
+    </div>
+
+    <!-- Confetti Canvas (renders overlays globally when triggered) -->
+    <canvas id="confetti-canvas"></canvas>
+
+    <!-- Main Container -->
+    <main class="app-container">
+
+        <!-- Global Header with official logo and campaign call graphic -->
+        <header class="global-header">
+            <img src="assets/png/majlis Logo(white).png" alt="Arabian Majlis" class="global-logo">
+            <!-- <div class="campaign-logo-wrapper">
+                <img src="assets/png/majlis campaign logo.png" alt="Majlis Campaign Offer" class="campaign-call-logo">
+            </div> -->
+        </header>
+
+        <!-- ==================== SCREEN 1: SCRATCH CARD PAGE ==================== -->
+        <section id="screen-scratch" class="screen-card active">
+            <div class="festive-decor-top-floral"></div>
+            <div class="screen-content">
+                <!-- Scratch Card Outer Container -->
+                <div class="scratch-card-outer">
+                    <div class="scratch-card-header">ARABIAN MAJLIS</div>
+                    <div class="scratch-card-body">
+                        <!-- Subtle Gold Monogram Accent inside the card -->
+                        <div class="card-monogram">
+                            <img src="assets/png/Vector Smart Object copy 12.png" alt="Majlis" class="monogram-icon">
+                        </div>
+
+                        <h1 class="card-campaign-title">SCAN SCRATCH WIN</h1>
+                        <p class="card-campaign-subtitle">YOUR ARABIAN MAJLIS SURPRISE IS <br>JUST A SCRATCH AWAY!</p>
+
+
+
+                        <div class="scratch-card-inner">
+                            <!-- Offer Layer (Revealed below) -->
+                            <div class="offer-reveal-layer">
+                                <div class="offer-badge">SPECIAL OFFERS</div>
+                                <h2 class="congrats-text" id="offer-congrats">CONGRATULATIONS</h2>
+                                <p class="offer-desc">YOUR EXCLUSIVE OFFER</p>
+                                <div class="offer-amount animate-pulse">₹50 OFF</div>
+                                <div class="revealed-coupon" style="display: none;">
+                                    <span class="coupon-label">Coupon Code:</span>
+                                    <span class="coupon-code">OFF50</span>
+                                </div>
+                            </div>
+
+                            <!-- Congratulations Overlay (initially hidden) -->
+                            <div id="congrats-overlay" class="congrats-overlay hidden">
+                                <div class="congrats-overlay-content">
+                                    <h2 class="congrats-overlay-title">CONGRATULATIONS</h2>
+                                    <p class="congrats-overlay-subtitle">YOUR EXCLUSIVE OFFER</p>
+                                    <div class="congrats-overlay-offer animate-pulse">₹50 OFF</div>
+                                    <div class="congrats-overlay-coupon" style="display: none;">
+                                        <span class="coupon-label">Coupon Code:</span>
+                                        <span class="coupon-code">OFF50</span>
+                                    </div>
+                                    <button id="btn-scratch-continue" class="btn btn-primary btn-glow btn-small"
+                                        style="margin-top: 14px; width: 100%;">
+                                        <span>Claim Your Offer 🎁</span>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                                            stroke-linecap="round" stroke-linejoin="round" class="btn-icon">
+                                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                                            <polyline points="12 5 19 12 12 19"></polyline>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Canvas Layer (Scratchable front) -->
+                            <canvas id="scratch-canvas" width="300" height="300"></canvas>
+                        </div>
+
+                        <!-- Small supporting phrase below scratch area -->
+                        <div style="text-align: center; margin-top: 15px;">
+                            <span style="color: #0f3f22; font-weight: 800; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.2; display: inline-block;">
+                                Exclusive offer on <span style="font-size: 15px; color: #B4883C;">delivery and</span> <br>
+                                <span style="font-size: 15px; color: #B4883C;">takeaway</span> orders only.
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Scratch Progress Indicator / Continue Button -->
+                <div id="scratch-progress-area" class="scratch-progress-container">
+                    <div class="progress-bar-track">
+                        <div id="progress-bar-fill" class="progress-bar-fill" style="width: 0%;"></div>
+                    </div>
+                    <span id="scratch-progress-text" class="progress-text">Scratch: 0%</span>
+                </div>
+                <div id="scratch-continue-area" class="scratch-progress-container hidden"></div>
+            </div>
+        </section>
+
+        <!-- ==================== SCREEN 2: CONGRATULATIONS SCREEN ==================== -->
+        <section id="screen-instagram" class="screen-card hidden">
+            <div class="festive-decor-top-floral"></div>
+            <div class="screen-content congrats-step-card">
+                <!-- Back Button -->
+                <button class="btn-back" id="btn-back-to-scratch" title="Go back to scratch card">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+                        class="back-icon">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                    <span>Back</span>
+                </button>
+
+                <div class="monogram-container">
+                    <img src="assets/png/Vector Smart Object copy 12.png" alt="Majlis" class="monogram-icon">
+                </div>
+
+                <!-- Congratulations Details -->
+                <div class="congrats-section animate-fade-in">
+                    <h2 class="congrats-title">🎉 CONGRATULATIONS!</h2>
+                    <p class="congrats-subtitle">You are eligible for an exclusive offer!</p>
+                    <div class="congrats-offer-amount animate-pulse">₹50 OFF</div>
+                    <div class="congrats-coupon" style="display: none;">
+                        <span class="coupon-label">Coupon Code:</span>
+                        <span class="coupon-code">OFF50</span>
+                    </div>
+                </div>
+
+                <!-- Claim Button -->
+                <button id="btn-claim-offer" class="btn btn-primary btn-glow" style="margin-top: 10px;">
+                    <span>Claim My Offer 🎁</span>
+                </button>
+            </div>
+            <div class="festive-decor-bottom"></div>
+        </section>
+
+
+
+        <!-- ==================== SCREEN 3: CUSTOMER REGISTRATION FORM ==================== -->
+        <section id="screen-form" class="screen-card hidden">
+            <div class="festive-decor-top"></div>
+            <div class="screen-content">
+
+
+                <!-- Form wrapped in a ticket card visual style reference wrapper -->
+                <div class="form-ticket-card">
+                    <div class="form-ticket-header">CLAIM YOUR OFFER</div>
+                    <div class="form-ticket-body">
+                        <!-- Subtle gold monogram at the top of the form -->
+                        <div class="form-monogram">
+                            <img src="assets/png/Vector Smart Object copy 12.png" alt="Majlis" class="monogram-icon">
+                        </div>
+
+                        <h2 class="form-title">YOU’VE REDEEMED YOUR REWARD</h2>
+                        <p class="form-subtitle">Enjoy your exclusive offer at Arabian Majlis</p>
+
+                        <div class="form-divider"></div>
+
+                        <form id="customer-form" novalidate>
+                            <!-- Name Group -->
+                            <div class="input-group">
+                                <label for="input-name" class="input-label">Full Name</label>
+                                <div class="input-field-wrapper">
+                                    <input type="text" id="input-name" class="input-field" placeholder="Your full name"
+                                        required>
+                                    <span class="error-message" id="error-name">Please enter your name</span>
+                                </div>
+                            </div>
+
+                            <!-- Mobile Group -->
+                            <div class="input-group">
+                                <label for="input-mobile" class="input-label">Mobile Number</label>
+                                <div class="input-field-wrapper">
+                                    <input type="tel" id="input-mobile" class="input-field"
+                                        placeholder="10-digit mobile number" maxlength="10" required>
+                                    <span class="error-message" id="error-mobile">Please enter a valid 10-digit mobile
+                                        number</span>
+                                </div>
+                            </div>
+
+                            <!-- Email Group -->
+                            <div class="input-group">
+                                <label for="input-email" class="input-label">Email Address</label>
+                                <div class="input-field-wrapper">
+                                    <input type="email" id="input-email" class="input-field"
+                                        placeholder="Email address (optional)">
+                                    <span class="error-message" id="error-email">Please enter a email address
+                                        (optional)</span>
+                                </div>
+                            </div>
+
+                            <!-- Branch Group -->
+                            <div class="input-group">
+                                <label for="input-branch" class="input-label">Select Branch</label>
+                                <div class="input-field-wrapper">
+                                    <select id="input-branch" class="input-field" required>
+                                        <option value="">Choose your branch</option>
+                                        <option value="Koduvally Bus Stand Ln, Koduvally">Koduvally Bus Stand Ln, Koduvally</option>
+                                        <option value="Coimbatore">Coimbatore</option>
+                                        <option value="Perinthalmanna road - Wandoor">Perinthalmanna road - Wandoor</option>
+                                    </select>
+                                    <span class="error-message" id="error-branch">Please select a branch</span>
+                                </div>
+                            </div>
+
+                            <div class="form-divider"></div>
+
+                            <!-- Submit Button with loading state -->
+                            <button type="submit" id="btn-submit-form" class="btn btn-primary btn-claim-cta">
+                                <span class="btn-text">CLAIM OFFER</span>
+                                <div class="loader hidden" id="form-loader"></div>
+                            </button>
+
+                            <!-- Security details -->
+                            <p class="form-security-text">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    style="display: inline-block; vertical-align: middle; margin-right: 4px; opacity: 0.7;">
+                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                                </svg>
+                                <span>Your information is secure.</span>
+                            </p>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== SCREEN 4: SUCCESS PAGE ==================== -->
+        <section id="screen-success" class="screen-card hidden">
+            <div class="festive-decor-top-floral"></div>
+            <div class="screen-content success-content">
+                <div class="success-icon-wrapper animate-bounce">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2.5" class="success-svg">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                </div>
+
+                <h2 class="success-title">Offer Successfully Claimed!</h2>
+                <!-- <p class="success-subtitle font-alt">Your discount code is now active and a confirmation has been sent to your email.</p> -->
+
+                <!-- Ticket Coupon Card -->
+                <div class="ticket-card animate-fade-in">
+                    <div class="ticket-header"></div>
+                    <div class="ticket-body">
+                        <div class="ticket-percent">₹50 OFF</div>
+                        <div class="ticket-coupon-box" style="display: none;">
+                            <div class="ticket-code" id="success-coupon-code">OFF50</div>
+                            <button id="btn-copy-code" class="btn-copy" title="Copy coupon code">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" class="copy-svg">
+                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                </svg>
+                                <span id="copy-text">Copy</span>
+                            </button>
+                        </div>
+                        <!-- <p class="ticket-expiry">Valid until: August 30, 2026</p> -->
+                        
+                        <!-- Instagram Redemption Instruction (Appears ONLY on claimed active offer) -->
+                        <div class="ticket-instagram-instruction" id="ticket-instagram-instruction">
+                            <span class="insta-text-line">Follow us on Instagram</span>
+                            <a href="https://www.instagram.com/arabianmajlis_signature/" target="_blank" rel="noopener noreferrer" class="insta-handle-link">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="insta-icon"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+                                <span>@arabianmajlis_signature</span>
+                            </a>
+                            <span class="insta-text-line">to redeem the offer</span>
+                        </div>
+                    </div>
+                    <div class="ticket-divider">
+                        <div class="notch left"></div>
+                        <div class="notch right"></div>
+                    </div>
+                    <div class="ticket-footer">
+                        <div style="text-align: center; margin-bottom: 15px;">
+                            <span style="color: #0f3f22; font-weight: 800; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.2; display: inline-block;">
+                                Exclusive offer on <span style="font-size: 15px; color: #B4883C;">delivery and</span> <br>
+                                <span style="font-size: 15px; color: #B4883C;">takeaway</span> orders only.
+                            </span>
+                        </div>
+                        <p class="card-supporting-phrase" id="ticket-validity-phrase">GRAB YOUR OFFER - VALID ONLY FOR 10 DAYS!</p>
+                    </div>
+                </div>
+
+            </div>
+            <div class="festive-decor-bottom"></div>
+        </section>
+
+        <!-- Premium Arabian Majlis Footer -->
+        <footer class="global-footer">
+            <div class="footer-divider">
+                <span class="divider-line"></span>
+                <span class="divider-diamond">◆</span>
+                <span class="divider-line"></span>
+            </div>
+
+            <div class="footer-brand">ARABIAN MAJLIS</div>
+            <div class="footer-locations">
+                <div class="location-pill">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                    Koduvally Bus Stand Ln, Koduvally
+                </div>
+                <div class="location-pill">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                    Coimbatore
+                </div>
+                <div class="location-pill">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                    Perinthalmanna road - Wandoor
+                </div>
+            </div>
+
+            <div class="footer-website">
+                <a href="https://www.arabianmajlislyf.com/" target="_blank" rel="noopener noreferrer"
+                    class="footer-link">
+                    www.arabianmajlislyf.com
+                </a>
+            </div>
+
+            <div class="footer-socials">
+                <a href="https://www.instagram.com/arabianmajlis_signature/" target="_blank" rel="noopener noreferrer"
+                    class="social-icon-link" aria-label="Instagram">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                        <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                        <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                    </svg>
+                </a>
+                <a href="https://www.facebook.com/BadrGroupCalicut/" target="_blank" rel="noopener noreferrer"
+                    class="social-icon-link" aria-label="Facebook">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+                    </svg>
+                </a>
+            </div>
+        </footer>
+
+    </main>
+
+    <!-- Claim Lookup Modal Dialog -->
+    <div id="modal-claim-lookup" class="lookup-modal-overlay hidden">
+        <div class="lookup-modal-card">
+            <button type="button" id="btn-close-lookup" class="lookup-modal-close" aria-label="Close modal">&times;</button>
+            <div class="lookup-modal-header">
+                <span class="lookup-modal-icon">🎫</span>
+                <h3 class="lookup-modal-title">Find Your Claimed Offer</h3>
+                <p class="lookup-modal-subtitle">Enter your registered 10-digit mobile number to view your claimed offer ticket.</p>
+            </div>
+            <form id="form-lookup-claim" class="lookup-modal-form" novalidate>
+                <div class="input-group">
+                    <label for="input-lookup-mobile" class="input-label">Mobile Number</label>
+                    <div class="input-field-wrapper">
+                        <input type="tel" id="input-lookup-mobile" class="input-field" placeholder="10-digit mobile number" maxlength="10" required>
+                        <span class="error-message" id="error-lookup-mobile">Please enter a valid 10-digit mobile number</span>
+                    </div>
+                </div>
+                <button type="submit" id="btn-submit-lookup" class="btn btn-primary" style="margin-top: 14px; width: 100%;">
+                    <span class="btn-text">Check Claimed Ticket 🔍</span>
+                    <div class="loader hidden" id="lookup-loader"></div>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast notifications container -->
+    <div id="toast-container"></div>
+
+
+    <!-- Client-side script -->
+    <script src="script.js?v=customers-1"></script>
+</body>
+
+</html>

@@ -3,11 +3,13 @@
    ========================================================================== */
 
 // --- CONFIGURATION SECTION ---
+const CUSTOMER_MODE = document.documentElement.dataset.collection === "customers";
+const STORAGE_PREFIX = CUSTOMER_MODE ? "majlis_customers" : "majlis";
 const BACKEND_API_URL = (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') 
-    ? "http://127.0.0.1:5000/api/claims" 
-    : "/api/claims";
+    ? `http://127.0.0.1:5000/api/${CUSTOMER_MODE ? "customers" : "claims"}`
+    : `/api/${CUSTOMER_MODE ? "customers" : "claims"}`;
 // Copy the Web App URL from your deployed Google Apps Script and paste it below (optional backup):
-const GOOGLE_SHEETS_API_URL = "https://script.google.com/macros/s/AKfycbyXm_94jLRyCPccQQ2bYxB6DjPveIW2Mh9YZ6dFIiHHfkJsKTHck2U8o1V2S41mDISssA/exec";
+const GOOGLE_SHEETS_API_URL = CUSTOMER_MODE ? "" : "https://script.google.com/macros/s/AKfycbyXm_94jLRyCPccQQ2bYxB6DjPveIW2Mh9YZ6dFIiHHfkJsKTHck2U8o1V2S41mDISssA/exec";
 // ==========================================================================
 // REWARD POOL CONFIGURATION
 // Add, remove, or edit offers here. Each entry must have:
@@ -38,7 +40,7 @@ let sessionReward = null;
 
 const DEV_MODE = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost';
 
-const VISITOR_KEY = "majlis_visitor_id";
+const VISITOR_KEY = `${STORAGE_PREFIX}_visitor_id`;
 
 // Safe Storage Helper with memory fallback for iOS Safari / Mobile Firefox Private Browsing
 const memoryStorage = {};
@@ -89,36 +91,36 @@ const TEN_DAYS_MS = 10 * 24 * 60 * 60 * 1000;
  * Helper to get the reward storage key for the current visitor.
  */
 function getRewardStorageKey() {
-    return `majlis_campaign_reward_id_${visitorId || "fallback"}`;
+    return `${STORAGE_PREFIX}_campaign_reward_id_${visitorId || "fallback"}`;
 }
 
 function getRewardLabelStorageKey() {
-    return `majlis_campaign_reward_label_${visitorId || "fallback"}`;
+    return `${STORAGE_PREFIX}_campaign_reward_label_${visitorId || "fallback"}`;
 }
 
 function getRewardCouponStorageKey() {
-    return `majlis_campaign_reward_coupon_${visitorId || "fallback"}`;
+    return `${STORAGE_PREFIX}_campaign_reward_coupon_${visitorId || "fallback"}`;
 }
 
 /**
  * Helper to get the scratch revealed storage key for the current visitor.
  */
 function getRevealedStorageKey() {
-    return `majlis_campaign_scratch_revealed_${visitorId || "fallback"}`;
+    return `${STORAGE_PREFIX}_campaign_scratch_revealed_${visitorId || "fallback"}`;
 }
 
 /**
  * Helper to get the claimed storage key for the current visitor.
  */
 function getClaimedStorageKey() {
-    return `majlis_campaign_claimed_${visitorId || "fallback"}`;
+    return `${STORAGE_PREFIX}_campaign_claimed_${visitorId || "fallback"}`;
 }
 
 /**
  * Helper to get the claimed timestamp storage key for the current visitor.
  */
 function getClaimedAtStorageKey() {
-    return `majlis_campaign_claimed_at_${visitorId || "fallback"}`;
+    return `${STORAGE_PREFIX}_campaign_claimed_at_${visitorId || "fallback"}`;
 }
 
 /**
@@ -225,7 +227,7 @@ function setClaimedState(mobileNumber) {
     try {
         const now = Date.now();
         if (mobileNumber) {
-            safeStorage.setItem("majlis_claimed_mobile", String(mobileNumber).trim());
+            safeStorage.setItem(`${STORAGE_PREFIX}_claimed_mobile`, String(mobileNumber).trim());
         }
         safeStorage.setItem(getClaimedStorageKey(), "true");
         if (sessionReward) {
@@ -1267,7 +1269,7 @@ document.addEventListener("DOMContentLoaded", () => {
         
         // Persist claimed state to local storage so ticket remains visible
         if (claimData.mobileNumber) {
-            safeStorage.setItem("majlis_claimed_mobile", String(claimData.mobileNumber).trim());
+            safeStorage.setItem(`${STORAGE_PREFIX}_claimed_mobile`, String(claimData.mobileNumber).trim());
         }
         safeStorage.setItem(getClaimedStorageKey(), "true");
         safeStorage.setItem(getRewardLabelStorageKey(), dbOfferLabel);
@@ -1465,7 +1467,7 @@ document.addEventListener("DOMContentLoaded", () => {
     applyRewardToDOM();
     
     // Step 3: Determine correct start screen based on claimed status & sync DB claim
-    const savedClaimedMobile = safeStorage.getItem("majlis_claimed_mobile");
+    const savedClaimedMobile = safeStorage.getItem(`${STORAGE_PREFIX}_claimed_mobile`);
 
     if (savedClaimedMobile || isClaimedState()) {
         console.log("[Majlis] Visitor has already claimed their reward. Displaying Success screen directly.");

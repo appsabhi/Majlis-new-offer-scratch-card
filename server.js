@@ -10,6 +10,8 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
+app.all('/api/customers', require('./api/customers'));
+
 // PostgreSQL Connection Pool (Supports Neon POSTGRES_URL / DATABASE_URL connection string and local dev params)
 const connectionString = process.env.POSTGRES_URL || process.env.DATABASE_URL;
 

@@ -50,20 +50,29 @@ In the updated campaign flow, the QR Code is **external** to the website (printe
 
 ## ⚙️ Running the Demo Locally
 
-1. Open a terminal in the `Majlis-new-scratch-card` directory.
-2. Launch a local web server (to permit local network access):
+1. Create the PostgreSQL tables using the SQL files listed below and configure the database connection.
+2. In one terminal, start the backend from the `Majlis-new-scratch-card` directory:
+   - **NodeJS:** `npm start`
+3. In a second terminal, launch a local static web server:
    - **Python:** `python -m http.server 8000`
    - **NodeJS:** `npx http-server -p 8000`
-3. Access the webpage on your desktop or mobile browser via the local IP address (e.g. `http://localhost:8000` or `http://192.168.1.50:8000`).
-4. Test the smooth touch scratching and customer registration flow immediately!
+4. Open `http://localhost:8000` for the original page or `http://localhost:8000/customers.html` for the separate customer page.
+5. Test the scratch-card and customer-registration flow.
 
-### Separate claims table setup
+### Separate customer experience and data
 
-This project uses its own PostgreSQL table, `public.majlis_new_scratch_card_claims`. It does not read from or write to the original demo's `public.claims` table. Before running the API, execute the SQL in [`create-new-claims-table.sql`](./create-new-claims-table.sql) against the same database configured for this project.
+The original scratch-card page remains at `/` and uses `public.majlis_new_scratch_card_claims` through `/api/claims`. A separate copy of the same experience is available at `/customers` (or `customers.html` on a basic local static server). It uses `/api/customers` and the independent `public.majlis_new_scratch_card_customers` table.
 
-Each table enforces unique mobile numbers independently, so the same mobile number may claim once in each project's table.
+For an independent customer deployment, create a second Vercel project from this repository and set its Root Directory to [`customers-app`](./customers-app). That folder includes its own entry page, assets, API, and Vercel configuration; see its [deployment instructions](./customers-app/README.md).
 
-For the Google Sheets backup, add a `Branch` header to row 1. The recommended column order is Full Name, Mobile Number, Email, Branch, Offer, Claim Date & Time.
+Run both SQL files against the PostgreSQL database configured for the project before using the respective flows:
+
+- [`create-new-claims-table.sql`](./create-new-claims-table.sql) creates the claims table.
+- [`create-new-customers-table.sql`](./create-new-customers-table.sql) creates the separate customer table. The standalone deployment also includes a copy of this SQL file in [`customers-app`](./customers-app).
+
+Each table enforces unique mobile numbers independently. Customer-page browser state and registrations are separate from the original campaign. The existing Google Sheets backup remains connected only to the original page, so the new customer flow does not mix its records into the existing sheet.
+
+For the original page's Google Sheets backup, add a `Branch` header to row 1. The recommended column order is Full Name, Mobile Number, Email, Branch, Offer, Claim Date & Time.
 
 ---
 
