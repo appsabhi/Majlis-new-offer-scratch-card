@@ -558,7 +558,7 @@ body::before {
 
 .offer-amount {
     font-family: var(--font-heading);
-    font-size: 26px;
+    font-size: 20px;
     font-weight: 700;
     color: var(--color-gold-dark);
     line-height: 1.15;
@@ -800,6 +800,127 @@ body::before {
                 inset 0 1px 3px rgba(0, 0, 0, 0.01);
 }
 
+.branch-native-select {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    border: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    clip-path: inset(50%);
+}
+
+.branch-select-trigger {
+    width: 100%;
+    min-height: 48px;
+    padding: 11px 15px;
+    border: 1px solid rgba(197, 160, 89, 0.55);
+    border-radius: 10px;
+    background: #fdfbf7;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    text-align: left;
+    font-family: var(--font-primary);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.branch-select-trigger.has-value {
+    color: var(--text-dark);
+}
+
+.branch-select-trigger:hover,
+.branch-select-trigger[aria-expanded="true"] {
+    border-color: var(--color-gold);
+    background-color: #fffefa;
+}
+
+.branch-select-trigger:focus-visible {
+    outline: none;
+    border-color: var(--color-gold);
+    box-shadow: 0 0 0 3px rgba(197, 160, 89, 0.2);
+}
+
+.branch-select-trigger.invalid {
+    border-color: var(--error);
+    background-color: rgba(168, 46, 46, 0.02);
+}
+
+.branch-select-trigger svg {
+    width: 18px;
+    height: 18px;
+    flex: 0 0 auto;
+    fill: none;
+    stroke: var(--color-gold-dark);
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: transform 0.2s ease;
+}
+
+.branch-select-trigger[aria-expanded="true"] svg {
+    transform: rotate(180deg);
+}
+
+.branch-select-options {
+    position: fixed;
+    z-index: 10000;
+    top: 0;
+    left: 0;
+    padding: 6px;
+    max-height: min(224px, calc(100vh - 16px));
+    overflow-y: auto;
+    box-sizing: border-box;
+    border: 1px solid rgba(197, 160, 89, 0.45);
+    border-radius: 12px;
+    background: #fffefa;
+    box-shadow: 0 12px 28px rgba(7, 53, 32, 0.18);
+}
+
+.branch-select-option {
+    width: 100%;
+    min-height: 44px;
+    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--text-dark);
+    text-align: left;
+    font: 500 14px var(--font-primary);
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.branch-select-option:hover,
+.branch-select-option:focus-visible,
+.branch-select-option.is-active {
+    outline: none;
+    background: rgba(197, 160, 89, 0.14);
+    color: var(--color-green-deep);
+}
+
+.branch-select-option[aria-selected="true"] {
+    background: rgba(197, 160, 89, 0.2);
+    color: var(--color-green-deep);
+    font-weight: 600;
+}
+
+.branch-select-option[aria-selected="true"]::after {
+    content: "✓";
+    color: var(--color-gold-dark);
+}
+
 .input-field.invalid {
     border-color: var(--error);
     background-color: rgba(168, 46, 46, 0.02);
@@ -814,6 +935,10 @@ body::before {
 }
 
 .input-field.invalid + .error-message {
+    display: block;
+}
+
+.branch-select-trigger.invalid ~ .error-message {
     display: block;
 }
 
@@ -941,7 +1066,7 @@ body::before {
 
 .ticket-percent {
     font-family: var(--font-heading);
-    font-size: 28px;
+    font-size: 20px;
     font-weight: 850;
     color: var(--color-gold-dark);
     margin-bottom: 4px;
@@ -1260,7 +1385,7 @@ body::before {
     }
 
     .congrats-overlay-offer {
-        font-size: 22px;
+        font-size: 18px;
     }
 
     .form-ticket-body {
@@ -1270,6 +1395,11 @@ body::before {
     .input-field {
         font-size: 16px; /* Prevents auto-zoom on mobile Safari & Firefox */
         padding: 10px 12px;
+    }
+
+    .branch-select-trigger,
+    .branch-select-option {
+        font-size: 16px;
     }
 
     .ticket-body {
@@ -1316,7 +1446,7 @@ body::before {
     }
 
     .offer-amount, .congrats-overlay-offer {
-        font-size: 20px;
+        font-size: 17px;
     }
 
     .form-ticket-body {
@@ -1415,7 +1545,7 @@ body::before {
     }
 
     .offer-amount, .congrats-overlay-offer {
-        font-size: 18px;
+        font-size: 16px;
     }
 }
 
@@ -1453,7 +1583,7 @@ body::before {
 
 .congrats-offer-amount {
     font-family: var(--font-heading);
-    font-size: 42px;
+    font-size: 24px;
     font-weight: 850;
     color: #e65c00;
     line-height: 1;
@@ -1618,7 +1748,7 @@ body::before {
 
 .congrats-overlay-offer {
     font-family: var(--font-heading);
-    font-size: 24px;
+    font-size: 20px;
     font-weight: 850;
     color: var(--color-gold-dark);
     line-height: 1.15;

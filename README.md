@@ -4,7 +4,7 @@ A simple, professional, fully working **Onam Festive Campaign** web application.
 
 Designed for **Majlis Restaurant & Banquet** festive marketing demo.
 
-This project is a copy of the `scratch-card-demo` app. Its existing offer configuration and scratch-card behavior are intentionally unchanged. The registration form now includes a required branch selector using the three locations already listed in the footer.
+This project is a copy of the `scratch-card-demo` app. Its active offers are configured in `script.js`, the registration form uses four UAE branch names, and the development reset button is available only on localhost or 127.0.0.1.
 
 ---
 

@@ -18,12 +18,14 @@ const GOOGLE_SHEETS_API_URL = CUSTOMER_MODE ? "" : "https://script.google.com/ma
 //   isWinner   — true if this is a real prize; false for "Better Luck" outcomes
 // ==========================================================================
 const REWARD_POOL = [
-    { id: "offer50Rs",          label: `₹50 OFF <br> on bill above ₹499`,   coupon: "OFF50",  isWinner: true },
-    { id: "offer75Rs",          label: `₹75 OFF <br> on bill above ₹699`,   coupon: "OFF75",  isWinner: true },
-    { id: "offer100Rs",         label: `₹100 OFF <br> on bill above ₹999`,  coupon: "OFF100", isWinner: true },
-    { id: "offer150Rs",         label: `₹150 OFF <br> on bill above ₹1299`, coupon: "OFF150", isWinner: true },
-    { id: "offer5PercentNext",  label: `5% OFF <br> on next purchase`,       coupon: "NEXT5",  isWinner: true },
-    { id: "offer10PercentNext", label: `10% OFF <br> on next purchase`,      coupon: "NEXT10", isWinner: true }
+    { id: "offer5Aed",          label: `AED 5 OFF <br> Min bill AED 50 and above`,               coupon: "AED5OFF",       isWinner: true },
+    { id: "offer10Aed",         label: `AED 10 OFF <br> Min bill AED 100 and above`,             coupon: "AED10OFF",      isWinner: true },
+    { id: "offer15Aed",         label: `AED 15 OFF <br> Min bill AED 150 and above`,             coupon: "AED15OFF",      isWinner: true },
+    { id: "offer20Aed",         label: `AED 20 OFF <br> Min bill AED 200 and above`,             coupon: "AED20OFF",      isWinner: true },
+    { id: "watermelonJuice",    label: `Free Watermelon Juice <br> Min bill AED 50 and above`,   coupon: "FREEJUICE",     isWinner: true },
+    { id: "watermelonSalad",    label: `Free Watermelon Salad <br> Min bill AED 100 and above`,  coupon: "FREESALAD",     isWinner: true },
+    { id: "quarterMazbi",       label: `Free Quarter Mazbi <br> Min bill AED 299 and above`,     coupon: "FREEMAZBI",     isWinner: true },
+    { id: "offer25Aed",         label: `AED 25 OFF <br> Min bill AED 250 and above`,             coupon: "AED25OFF",      isWinner: true }
 ];
 
 // Legacy reward map to ensure users who previously claimed old campaign offers keep their exact claimed reward when returning
@@ -317,7 +319,7 @@ function initializeReward() {
                     return;
                 } else {
                     // Previously assigned reward is no longer active in REWARD_POOL.
-                    // Clear previous scratch reveal state so visitor gets a fresh card with one of the 6 active offers.
+                    // Clear previous scratch reveal state so visitor gets a fresh card with an active offer.
                     safeStorage.removeItem(getRevealedStorageKey());
                     console.log("[Majlis] Saved reward was retired from pool. Re-assigning an active offer.");
                 }
@@ -456,12 +458,139 @@ document.addEventListener("DOMContentLoaded", () => {
     const inputMobile = document.getElementById("input-mobile");
     const inputEmail = document.getElementById("input-email");
     const inputBranch = document.getElementById("input-branch");
+    const branchSelectTrigger = document.getElementById("branch-select-trigger");
+    const branchSelectOptions = document.getElementById("branch-select-options");
     const btnSubmitForm = document.getElementById("btn-submit-form");
     const formLoader = document.getElementById("form-loader");
     const btnInstagramFollow = document.getElementById("btn-instagram-follow");
     const instagramStatusText = document.getElementById("instagram-status-text");
     const instagramInitialState = document.getElementById("instagram-initial-state");
     const instagramSuccessState = document.getElementById("instagram-success-state");
+
+    if (inputBranch && branchSelectTrigger && branchSelectOptions) {
+        const branchTriggerLabel = branchSelectTrigger.querySelector("span");
+        const branchOptions = Array.from(inputBranch.options).filter(option => option.value);
+        let activeBranchIndex = -1;
+        document.body.appendChild(branchSelectOptions);
+
+        branchOptions.forEach((option, index) => {
+            const optionButton = document.createElement("button");
+            optionButton.type = "button";
+            optionButton.className = "branch-select-option";
+            optionButton.id = `branch-option-${index}`;
+            optionButton.setAttribute("role", "option");
+            optionButton.setAttribute("aria-selected", "false");
+            optionButton.textContent = option.textContent;
+            optionButton.addEventListener("click", () => {
+                inputBranch.value = option.value;
+                inputBranch.dispatchEvent(new Event("change", { bubbles: true }));
+                closeBranchOptions();
+                branchSelectTrigger.focus();
+            });
+            branchSelectOptions.appendChild(optionButton);
+        });
+
+        function setActiveBranchOption(index, focusOption) {
+            const optionButtons = branchSelectOptions.querySelectorAll(".branch-select-option");
+            activeBranchIndex = Math.max(0, Math.min(index, optionButtons.length - 1));
+            optionButtons.forEach((optionButton, optionIndex) => {
+                optionButton.classList.toggle("is-active", optionIndex === activeBranchIndex);
+            });
+            if (focusOption && optionButtons[activeBranchIndex]) {
+                optionButtons[activeBranchIndex].focus();
+            }
+        }
+
+        function openBranchOptions(focusIndex) {
+            branchSelectOptions.classList.remove("hidden");
+            branchSelectTrigger.setAttribute("aria-expanded", "true");
+            positionBranchOptions();
+            const selectedIndex = branchOptions.findIndex(option => option.value === inputBranch.value);
+            setActiveBranchOption(focusIndex === undefined ? Math.max(selectedIndex, 0) : focusIndex, true);
+        }
+
+        function positionBranchOptions() {
+            const triggerRect = branchSelectTrigger.getBoundingClientRect();
+            const menuHeight = branchSelectOptions.scrollHeight;
+            const overflow = triggerRect.bottom + 6 + menuHeight - window.innerHeight;
+            if (overflow > 0) {
+                window.scrollBy(0, overflow + 8);
+            }
+            const rect = branchSelectTrigger.getBoundingClientRect();
+            branchSelectOptions.style.top = `${rect.bottom + 6}px`;
+            branchSelectOptions.style.left = `${rect.left}px`;
+            branchSelectOptions.style.width = `${rect.width}px`;
+        }
+
+        function closeBranchOptions() {
+            branchSelectOptions.classList.add("hidden");
+            branchSelectTrigger.setAttribute("aria-expanded", "false");
+            activeBranchIndex = -1;
+        }
+
+        function updateBranchSelection() {
+            const selectedOption = branchOptions.find(option => option.value === inputBranch.value);
+            branchTriggerLabel.textContent = selectedOption ? selectedOption.textContent : "Choose your branch";
+            branchSelectTrigger.classList.toggle("has-value", Boolean(selectedOption));
+            branchSelectOptions.querySelectorAll(".branch-select-option").forEach((optionButton, index) => {
+                optionButton.setAttribute("aria-selected", String(branchOptions[index].value === inputBranch.value));
+            });
+        }
+
+        branchSelectTrigger.addEventListener("click", () => {
+            if (branchSelectTrigger.getAttribute("aria-expanded") === "true") {
+                closeBranchOptions();
+            } else {
+                openBranchOptions();
+            }
+        });
+
+        branchSelectTrigger.addEventListener("keydown", event => {
+            if (event.key === "ArrowDown" || event.key === "ArrowUp" || event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                if (branchSelectTrigger.getAttribute("aria-expanded") !== "true") {
+                    openBranchOptions();
+                }
+            }
+        });
+
+        branchSelectOptions.addEventListener("keydown", event => {
+            if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+                event.preventDefault();
+                const direction = event.key === "ArrowDown" ? 1 : -1;
+                setActiveBranchOption((activeBranchIndex + direction + branchOptions.length) % branchOptions.length, true);
+            } else if (event.key === "Home" || event.key === "End") {
+                event.preventDefault();
+                setActiveBranchOption(event.key === "Home" ? 0 : branchOptions.length - 1, true);
+            } else if (event.key === "Escape") {
+                event.preventDefault();
+                closeBranchOptions();
+                branchSelectTrigger.focus();
+            } else if (event.key === "Tab") {
+                closeBranchOptions();
+            }
+        });
+
+        window.addEventListener("resize", () => {
+            if (branchSelectTrigger.getAttribute("aria-expanded") === "true") {
+                positionBranchOptions();
+            }
+        });
+        window.addEventListener("scroll", () => {
+            if (branchSelectTrigger.getAttribute("aria-expanded") === "true") {
+                positionBranchOptions();
+            }
+        }, true);
+
+        document.addEventListener("click", event => {
+            if (!branchSelectTrigger.parentElement.contains(event.target) && !branchSelectOptions.contains(event.target)) {
+                closeBranchOptions();
+            }
+        });
+
+        inputBranch.addEventListener("change", updateBranchSelection);
+        updateBranchSelection();
+    }
 
     // --- Scratch Canvas Elements ---
     const canvas = document.getElementById("scratch-canvas");
@@ -967,6 +1096,8 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     inputBranch.addEventListener("change", () => {
         inputBranch.classList.remove("invalid");
+        branchSelectTrigger.classList.remove("invalid");
+        branchSelectTrigger.removeAttribute("aria-invalid");
     });
 
     // Clean formatting inputs for numbers
@@ -1035,9 +1166,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (!inputBranch.value) {
             inputBranch.classList.add("invalid");
+            branchSelectTrigger.classList.add("invalid");
+            branchSelectTrigger.setAttribute("aria-invalid", "true");
             isValid = false;
         } else {
             inputBranch.classList.remove("invalid");
+            branchSelectTrigger.classList.remove("invalid");
+            branchSelectTrigger.removeAttribute("aria-invalid");
         }
 
         if (!isValid) {
@@ -1416,45 +1551,12 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Reset Campaign Flow
-    if (btnRestart) {
-        if (DEV_MODE) {
-            btnRestart.classList.remove("hidden");
-        }
-
+    // Dev reset is intentionally unavailable outside local development.
+    if (btnRestart && DEV_MODE) {
+        btnRestart.classList.remove("hidden");
         btnRestart.addEventListener("click", () => {
-            if (DEV_MODE) {
-                clearLocalState();
-                window.location.reload();
-                return;
-            }
-
-            // Reset forms & styles
-            if (customerForm) customerForm.reset();
-            [inputName, inputMobile, inputEmail, inputBranch].forEach(input => {
-                if (input) input.classList.remove("invalid");
-            });
-
-            // Reset Instagram Follow state
-            isInstagramClicked = false;
-            if (btnSubmitForm) {
-                btnSubmitForm.disabled = true;
-                btnSubmitForm.classList.add("btn-locked");
-            }
-            if (instagramInitialState) {
-                instagramInitialState.classList.remove("hidden");
-            }
-            if (instagramSuccessState) {
-                instagramSuccessState.classList.add("hidden");
-            }
-            if (instagramStatusText) {
-                instagramStatusText.innerText = "Instagram step required *";
-                instagramStatusText.classList.remove("verified");
-            }
-
-            // Go back to scratch card screen directly
-            showScreen(screenScratch);
-            initScratchCanvas();
+            clearLocalState();
+            window.location.reload();
         });
     }
 
