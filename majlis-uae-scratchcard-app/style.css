@@ -1132,6 +1132,49 @@ body::before {
     color: var(--text-muted);
 }
 
+/* Ticket Scratched Date Pill */
+.ticket-scratched-date-wrap {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 8px 0 10px 0;
+}
+
+.ticket-scratched-date-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    background: rgba(197, 160, 89, 0.08);
+    border: 1px solid rgba(197, 160, 89, 0.3);
+    border-radius: 20px;
+    padding: 5px 12px;
+    font-family: var(--font-primary);
+    font-size: 11px;
+    color: var(--color-green-deep);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.ticket-scratched-date-pill .ticket-date-icon {
+    color: var(--color-gold-dark);
+    flex-shrink: 0;
+}
+
+.ticket-scratched-date-pill .scratched-date-label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+}
+
+.ticket-scratched-date-pill .scratched-date-value {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    color: var(--color-green-deep);
+}
+
 /* Ticket Divider Line & Notches */
 .ticket-divider {
     height: 2px;
