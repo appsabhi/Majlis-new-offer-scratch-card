@@ -126,6 +126,63 @@ function getClaimedAtStorageKey() {
 }
 
 /**
+ * Helper to get the scratch timestamp storage key for the current visitor.
+ */
+function getScratchedAtStorageKey() {
+    return `${STORAGE_PREFIX}_campaign_scratched_at_${visitorId || "fallback"}`;
+}
+
+/**
+ * Formats a date value (timestamp number, ISO string, or Date) into a friendly UAE format: "31 Oct 2026, 04:30 PM".
+ */
+function formatScratchedDate(input) {
+    if (!input) return "";
+    let d;
+    if (typeof input === "number") {
+        d = new Date(input);
+    } else if (typeof input === "string") {
+        const num = Number(input);
+        if (!isNaN(num) && num > 100000000000) {
+            d = new Date(num);
+        } else {
+            d = new Date(input);
+        }
+    } else if (input instanceof Date) {
+        d = input;
+    }
+    if (!d || isNaN(d.getTime())) return String(input);
+    const day = d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+    const time = d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true });
+    return `${day}, ${time}`;
+}
+
+/**
+ * Returns the best available scratched timestamp for the current visitor.
+ */
+function getResolvedScratchedTimestamp() {
+    try {
+        const scratchedAt = safeStorage.getItem(getScratchedAtStorageKey());
+        if (scratchedAt) return scratchedAt;
+        const claimedAt = safeStorage.getItem(getClaimedAtStorageKey());
+        if (claimedAt) return claimedAt;
+    } catch (e) {
+        console.warn("[Majlis] Error reading scratched timestamp:", e);
+    }
+    return null;
+}
+
+/**
+ * Updates the scratched date element in the Success ticket coupon card.
+ */
+function updateScratchedDateUI(dateValue) {
+    const ticketScratchedDateEl = document.getElementById("ticket-scratched-date");
+    if (!ticketScratchedDateEl) return;
+    
+    const valueToFormat = dateValue || getResolvedScratchedTimestamp() || Date.now();
+    ticketScratchedDateEl.innerText = formatScratchedDate(valueToFormat);
+}
+
+/**
  * Checks whether the visitor has successfully claimed their reward.
  */
 function isClaimedState() {
@@ -158,6 +215,7 @@ function isOfferExpired() {
  */
 function updateExpiryUI() {
     const expired = isOfferExpired();
+    updateScratchedDateUI();
     
     const successTitleEl = document.querySelector(".success-title");
     const successIconWrapper = document.querySelector(".success-icon-wrapper");
@@ -238,6 +296,9 @@ function setClaimedState(mobileNumber) {
                 safeStorage.setItem(getRewardCouponStorageKey(), sessionReward.coupon);
             }
         }
+        if (!safeStorage.getItem(getScratchedAtStorageKey())) {
+            safeStorage.setItem(getScratchedAtStorageKey(), now.toString());
+        }
         if (!safeStorage.getItem(getClaimedAtStorageKey())) {
             safeStorage.setItem(getClaimedAtStorageKey(), now.toString());
         }
@@ -259,6 +320,7 @@ function clearLocalState() {
             safeStorage.removeItem(getRevealedStorageKey());
             safeStorage.removeItem(getClaimedStorageKey());
             safeStorage.removeItem(getClaimedAtStorageKey());
+            safeStorage.removeItem(getScratchedAtStorageKey());
             console.log("[Majlis] Cleared local campaign state for visitor:", visitorId);
         }
     } catch (e) {
@@ -691,6 +753,9 @@ document.addEventListener("DOMContentLoaded", () => {
         if (savedRevealed) {
             isRevealed = true;
             scratchProgress = 100;
+            if (!safeStorage.getItem(getScratchedAtStorageKey())) {
+                safeStorage.setItem(getScratchedAtStorageKey(), Date.now().toString());
+            }
             progressBarFill.style.width = "100%";
             scratchProgressText.innerText = sessionReward.isWinner ? "Revealed! 🎉" : "Revealed! 🍀";
             canvas.style.opacity = "0";
@@ -919,6 +984,9 @@ document.addEventListener("DOMContentLoaded", () => {
         // Save scratch revealed state to safeStorage
         try {
             safeStorage.setItem(getRevealedStorageKey(), "true");
+            if (!safeStorage.getItem(getScratchedAtStorageKey())) {
+                safeStorage.setItem(getScratchedAtStorageKey(), Date.now().toString());
+            }
         } catch (e) {
             console.warn(e);
         }
@@ -1292,6 +1360,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 // Persist successfully claimed state & show success ticket screen
                 setClaimedState(mobileValFinal);
+                updateScratchedDateUI();
                 showScreen(screenSuccess);
                 triggerConfetti();
             } else if (data && data.error === "ALREADY_CLAIMED") {
@@ -1404,6 +1473,8 @@ document.addEventListener("DOMContentLoaded", () => {
         safeStorage.setItem(getClaimedStorageKey(), "true");
         safeStorage.setItem(getRewardLabelStorageKey(), dbOfferLabel);
         safeStorage.setItem(getClaimedAtStorageKey(), claimTimestamp.toString());
+        safeStorage.setItem(getScratchedAtStorageKey(), claimTimestamp.toString());
+        updateScratchedDateUI(claimTimestamp);
 
         // Apply reward label to DOM elements and show success ticket
         applyRewardToDOM();
@@ -1574,6 +1645,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (savedClaimedMobile || isClaimedState()) {
         console.log("[Majlis] Visitor has already claimed their reward. Displaying Success screen directly.");
+        updateScratchedDateUI();
         showScreen(screenSuccess);
 
         if (savedClaimedMobile) {
